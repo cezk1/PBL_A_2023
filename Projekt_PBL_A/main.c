@@ -2,7 +2,32 @@
 /**
 * main.c
 */
+#include "PWM_Freq_Calc.h"
 
+
+
+
+void dzialajacy_PWMA(){
+    EALLOW;
+
+    EPwm1Regs.TBCTL.bit.CTRMODE = 2; // ustawienie trybu pracy up-down
+    EPwm1Regs.TBCTL.bit.HSPCLKDIV = hspclkdiv; // ustawienie jednego z dzielnikow TBCLK
+    EPwm1Regs.TBCTL.bit.CLKDIV = clkdiv; // ustawienie drugiego z dzielnikow TBCLK
+    // TBCLK = SYSCLKOUT/(HSPCLKDIV*CLKDIV), gdzie SYSCLKOUT wynosi standardowo 150MHz
+    EPwm1Regs.TBCTL.bit.FREE_SOFT = 2;
+    EPwm1Regs.AQCTLA.bit.CAU = 1; // Set: force EPWMxA output high (przy zliczaniu w gore)
+    EPwm1Regs.AQCTLA.bit.CAD = 2; // Clear: force EPWMxA output low (przy zliczaniu w dol)
+    EPwm1Regs.TBPRD = tbprd; // ustwienie okresu PWM (T_PWM = 2*TBPRD*T_TBCLK) (strona 3 w instrukcji do PWM)
+    EPwm1Regs.CMPA.half.CMPA = 1225; // ustawienie wypelnienia dla komparatora A
+
+    EDIS;
+}
+
+void pila_PWMA(){
+    EALLOW;
+
+    EDIS;
+}
 
 void GPIO_Setup(){
     EALLOW;
@@ -15,25 +40,7 @@ void GPIO_Setup(){
 }
 
 void PWMA_Setup(){
-    EALLOW;
-
-    EPwm1Regs.TBCTL.bit.CTRMODE = 2; // ustawienie trybu pracy up-down
-
-    EPwm1Regs.TBCTL.bit.HSPCLKDIV = 0; // ustawienie jednego z dzielnikow TBCLK
-    EPwm1Regs.TBCTL.bit.CLKDIV = 0; // ustawienie drugiego z dzielnikow TBCLK
-    // TBCLK = SYSCLKOUT/(HSPCLKDIV*CLKDIV), gdzie SYSCLKOUT wynosi standardowo 150MHz
-
-    EPwm1Regs.TBCTL.bit.FREE_SOFT = 2;
-
-    EPwm1Regs.AQCTLA.bit.CAU = 1; // Set: force EPWMxA output high (przy zliczaniu w gore)
-    EPwm1Regs.AQCTLA.bit.CAD = 2; // Clear: force EPWMxA output low (przy zliczaniu w dol)
-
-    EPwm1Regs.TBPRD = 750; // ustwienie okresu PWM (T_PWM = 2*TBPRD*T_TBCLK) (strona 3 w instrukcji do PWM)
-
-    EPwm1Regs.CMPA.half.CMPA = 250; // ustawienie wypelnienia dla komparatora A
-
-
-    EDIS;
+    dzialajacy_PWMA();
 
 }
 
